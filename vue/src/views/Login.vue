@@ -1,138 +1,158 @@
- <template>
-  <div class="container">
-    <div style="width: 380px; padding: 50px 30px; background-color: white; border-radius: 5px;">
-      <div style="text-align: center; font-size: 24px; margin-bottom: 30px; color: #333">博客平台</div>
-      <el-form :model="form" :rules="rules" ref="formRef">
-        <el-form-item prop="username">
-          <el-input size="medium" prefix-icon="el-icon-user" placeholder="请输入账号" v-model="form.username"></el-input>
-        </el-form-item>
-        <el-form-item prop="password">
-          <el-input size="medium" prefix-icon="el-icon-lock" placeholder="请输入密码" show-password  v-model="form.password"></el-input>
-        </el-form-item>
-<!--        <el-form-item prop="role">-->
-<!--          <el-radio-group v-model="form.role">-->
-<!--            <el-radio label="ADMIN">管理员</el-radio>-->
-<!--            <el-radio label="USER">用户</el-radio>-->
-<!--          </el-radio-group>-->
-<!--        </el-form-item>-->
-        <el-form-item prop="code">
-          <div style="display: flex">
-            <el-input style="flex: 1" size="medium" v-model="code"></el-input>
-            <Identify :identifyCode="identifyCode" @click.native="refreshCode" />
-          </div>
-        </el-form-item>
-        <el-form-item>
-          <el-button size="medium" style="width: 100%; background-color: #2a60c9; border-color: #2a60c9; color: white" @click="login">登 录</el-button>
-        </el-form-item>
-        <div style="display: flex; align-items: center">
-          <div style="flex: 1"></div>
-          <div style="flex: 1; text-align: right">
-            还没有账号？请 <a href="/register">注册</a>
+<template>
+  <div>
+    <!-- 语言切换按钮 -->
+    <div class="lang-switch">
+      <button @click="switchLang('zh')">中文</button>
+      <button @click="switchLang('en')">English</button>
+    </div>
+
+    <!-- 顶部校徽 -->
+    <div class="logo-container">
+      <img src="@/assets/imgs/logo.jpg" alt="Logo" class="school-logo" />
+    </div>
+
+    <!-- 登录容器 -->
+    <div class="login-container">
+      <div class="login-title2">{{ text.mainTitle2 }}</div>
+      <div class="login-title">{{ text.mainTitle }}</div>
+      <div class="login-xuehaoxingming">{{ text.xuehaoxingming }}</div>
+
+      <div class="login-content">
+        <!-- 左侧登录表单 -->
+        <div class="login-left">
+          <div class="panel active">
+            <h2>{{ text.pwdPanelTitle }}</h2>
+
+            <div class="form-group">
+              <label>{{ text.lblPwdAccount }}</label>
+              <el-input v-model="form.username" :placeholder="text.lblPwdAccount" />
+            </div>
+            <div class="form-group">
+              <label>{{ text.lblPwdPassword }}</label>
+              <el-input v-model="form.password" show-password :placeholder="text.lblPwdPassword" />
+            </div>
+            <div class="form-group">
+              <label>{{ text.lblCode }}</label>
+              <div class="sms-box">
+                <el-input v-model="code" :placeholder="text.lblCode" />
+                <Identify :identifyCode="identifyCode" @click.native="refreshCode" />
+              </div>
+            </div>
+            <el-button class="submit-btn" @click="login">{{ text.btnPwdSubmit }}</el-button>
           </div>
         </div>
-      </el-form>
+      </div>
+
+      <!-- 底部协议 -->
+      <div class="login-footer" style="margin-top: 6px;">
+        {{ text.noAccount }} <a href="/register">{{ text.registerLink }}</a>
+      </div>
+      <div class="login-footer" v-html="text.footerText"></div>
     </div>
   </div>
 </template>
 
 <script>
-import Identify from "@/components/Identify.vue";
+import Identify from '@/components/Identify.vue';
+
+const textZh = {
+  mainTitle2: "欢迎来到论坛",
+  mainTitle: "登录进入论坛",
+  xuehaoxingming: "学号：220162401051 姓名：应亚炫",
+  pwdPanelTitle: "密码登录",
+  lblPwdAccount: "账号 / 手机号",
+  lblPwdPassword: "密码",
+  lblCode: "验证码",
+  btnPwdSubmit: "登录",
+  noAccount: "还没有账号？",
+  registerLink: "点击注册",
+  footerText: '注册/登录即表示您同意 <a href="#" id="agreementLink">用户协议</a> 和 <a href="#" id="privacyLink">隐私政策</a>'
+};
+
+const textEn = {
+  mainTitle2: "Welcome to the forum",
+  mainTitle: "Log in to the forum",
+  xuehaoxingming: "Student ID:220162401051 Name:Yaxuan Ying",
+  pwdPanelTitle: "Password Login",
+  lblPwdAccount: "Account / Phone",
+  lblPwdPassword: "Password",
+  lblCode: "Verification Code",
+  btnPwdSubmit: "Login",
+  noAccount: "Don't have an account?",
+  registerLink: "Click to register",
+  footerText: 'By signing up/logging in, you agree to the <a href="#" id="agreementLink">User Agreement</a> and <a href="#" id="privacyLink">Privacy Policy</a>'
+};
 
 export default {
-  name: "Login",
-  components: {
-    Identify
-  },
+  name: 'Login',
+  components: { Identify },
   data() {
     return {
-      form: { role: 'ADMIN' },
-      rules: {
-        username: [
-          { required: true, message: '请输入账号', trigger: 'blur' },
-        ],
-        password: [
-          { required: true, message: '请输入密码', trigger: 'blur' },
-        ]
-      },
-      code: '',   // 表单绑定的验证码
-      // 图片验证码
+      lang: 'zh',
+      texts: { zh: textZh, en: textEn },
+      form: { username: '', password: '', role: 'USER' },
+      code: '',
       identifyCode: '',
-      // 验证码规则
-      identifyCodes: '123456789ABCDEFGHGKMNPQRSTUVWXY',
+      identifyCodes: '123456789ABCDEFGHGKMNPQRSTUVWXY'
+    };
+  },
+  computed: {
+    text() {
+      return this.texts[this.lang];
     }
   },
   mounted() {
-    this.refreshCode()
+    this.refreshCode();
   },
   methods: {
-    // 切换验证码
-    refreshCode() {
-      this.identifyCode = ''
-      this.makeCode(this.identifyCodes, 4)
+    switchLang(lang) {
+      this.lang = lang;
     },
-    // 生成随机验证码
-    makeCode(o, l) {
-      for (let i = 0; i < l; i++) {
-        this.identifyCode += this.identifyCodes[Math.floor(Math.random() * (this.identifyCodes.length))]
+    refreshCode() {
+      this.identifyCode = '';
+      for (let i = 0; i < 4; i++) {
+        this.identifyCode += this.identifyCodes[Math.floor(Math.random() * this.identifyCodes.length)];
       }
     },
     login() {
       if (!this.code) {
-        this.$message.warning('请输入验证码')
-        this.refreshCode()
-        return
+        this.$message.warning(this.lang === 'zh' ? '请输入验证码' : 'Please enter the code');
+        this.refreshCode();
+        return;
       }
       if (this.code.toLowerCase() !== this.identifyCode.toLowerCase()) {
-        this.$message.warning('验证码错误')
-        this.refreshCode()
-        return
+        this.$message.warning(this.lang === 'zh' ? '验证码错误' : 'Incorrect code');
+        this.refreshCode();
+        return;
       }
 
       if (this.form.username === 'admin') {
-        this.form.role = 'ADMIN'
+        this.form.role = 'ADMIN';
       } else {
-        this.form.role = 'USER'
+        this.form.role = 'USER';
       }
 
-      this.$refs['formRef'].validate((valid) => {
-        if (valid) {
-          // 验证通过
-          this.$request.post('/login', this.form).then(res => {
-            if (res.code === '200') {
-              localStorage.setItem("xm-user", JSON.stringify(res.data))  // 存储用户数据
-              this.$message.success('登录成功')
-              setTimeout(() => {
-                // 跳转主页
-                if (res.data.role === 'ADMIN') {
-                  location.href = '/home'
-                } else {
-                  location.href = '/front/home'
-                }
-              }, 500)
+      this.$request.post('/login', this.form).then(res => {
+        if (res.code === '200') {
+          localStorage.setItem("xm-user", JSON.stringify(res.data));
+          this.$message.success(this.lang === 'zh' ? '登录成功' : 'Login successful');
+          setTimeout(() => {
+            if (res.data.role === 'ADMIN') {
+              location.href = '/home';
             } else {
-              this.refreshCode()
-              this.$message.error(res.msg)
+              location.href = '/front/home';
             }
-          })
+          }, 500);
+        } else {
+          this.refreshCode();
+          this.$message.error(res.msg);
         }
-      })
+      });
     }
   }
-}
+};
 </script>
 
 <style scoped>
-.container {
-  height: 100vh;
-  overflow: hidden;
-  background-image: url("@/assets/imgs/bg.jpg");
-  background-size: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #666;
-}
-a {
-  color: #2a60c9;
-}
+@import '@/assets/css/login-style.css';
 </style>
