@@ -29,3 +29,7 @@ a {
     -webkit-line-clamp: 2; /* 超出几行省略 */
     overflow: hidden;
 }
+
+.w-e-text img {
+    width: 100% !important;
+}

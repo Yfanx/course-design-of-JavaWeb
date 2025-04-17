@@ -15,6 +15,10 @@
           </el-menu>
         </div>
       </div>
+      <div>
+        <el-input style="width: 260px; margin-right: 10px" placeholder="请输入关键字搜索"></el-input>
+        <el-button type="success">搜 索</el-button>
+      </div>
       <div class="front-header-right">
         <div v-if="!user.username">
           <el-button @click="$router.push('/login')">登录</el-button>
